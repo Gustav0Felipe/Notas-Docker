@@ -1,7 +1,0 @@
-GitHub
-https://github.com/Gustav0Felipe/primeiro-repositorio
-
-Git 
-https://git-scm.com/
-
-Git Bash - É um terminal estendido para otimizar o uso do Git 
