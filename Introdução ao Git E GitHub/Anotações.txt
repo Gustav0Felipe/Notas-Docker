@@ -1,0 +1,20 @@
+GitHub
+https://github.com/Gustav0Felipe/primeiro-repositorio
+
+Git 
+https://git-scm.com/
+
+Git Bash - É um terminal estendido para otimizar o uso do Git 
+
+Comandos:
+$ Git Status
+$ Git -A 
+Adiciona tudo da pasta em que estou e subpastas ao meu git local.
+$ Git Commit -m "inclusão das anotações do curso de Git/GitHub"
+Adiciona tudo ao meu GitBash.
+$ git config --global user.email "gustavo.custodio55@hotmail.com"
+Cadastra um Email no git bash para validar.
+$ git config --global user.name "Gustav0 Felipe"
+Cadastra um Nome no git bash para validar.
+$ git push origin main
+Envia todos os commits que tenho localmente para a nuvem, da minha pasta ao meu repositório GitHub.
