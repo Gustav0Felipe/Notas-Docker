@@ -1,0 +1,406 @@
+GitHub
+https://github.com/Gustav0Felipe/primeiro-repositorio
+
+Git 
+https://git-scm.com/
+
+Git Bash - É um terminal estendido para otimizar o uso do Git 
+
+Comandos:
+$ Git Status
+$ Git -A 
+Adiciona tudo da pasta em que estou e subpastas ao meu git local.
+$ Git Commit -m "inclusão das anotações do curso de Git/GitHub"
+Adiciona tudo ao meu GitBash.
+$ git config --global user.email "gustavo.custodio55@hotmail.com"
+Cadastra um Email no git bash para validar.
+$ git config --global user.name "Gustav0 Felipe"
+Cadastra um Nome no git bash para validar.
+$ git push origin main
+Envia todos os commits que tenho localmente para a nuvem, da minha pasta ao meu repositório GitHub.
+
+
+
+Oracle VM VirtualBox Manager - Quando criar a maquina virtual devo usar o adapter Bridged, para permitir controle remoto, com minha maquina fisica tendo acesso a virtual, ao host com o docker engine.
+https://www.virtualbox.org/wiki/Downloads
+
+Docker
+https://www.docker.com/products/docker-hub/ - posso pegar imagens oficiais nas versões que tenham o que eu preciso.
+
+Comandos:
+mkdir /data = cria um diretorio aonde eu estiver com o nome data. 
+mkdir /data/exemplo = criar um diretorio dentro da data com o nome de um container
+touch arquivo1.txt = criar um arquivo, neste caso de texto.
+ls = list.
+cd = entrar em um diretorio.
+
+docker pull ubuntu = baixa a ultima versão da imagem do ubuntu.
+docker pull ubuntu:9 = baixa a a versão 9 do ubuntu (isto se chama tag).
+docker pull name:Exemplo ubuntu = baixa a ubuntu e atribui a ela um nome.
+docker run = inicia um conteiner.
+docker run --help = mostra uma lista de subcomandos do run.
+docker cp arquivo.txt Exemplo-A:/aula/ = copia o arquivo arquivo.txt para uma pasta /aula em um conteiner de nome Exemplo-A.
+docker ps = mostra todos os meus conteineres em execução.
+docker ps -a = mostra todas as ações que meus containeres fizeram.
+docker stop Exemplo = para o conteiner, posso fazer pelo nome, ou pelo id, podendo ser os 3 primeiros digitos se não houver duplicidade.
+docker start Exemplo = retoma as atividades de um conteiner que estava inativo. (não perco os dados que eu inseri ao reiniciar um conteiner).
+docker rm Exemplo= exclui o conteiner (perde os dados, a menos que eu mapeie o local de armazenamento dos dados para fora).
+docker exec -it Exemplo bash = executa um bash me permitindo entrar no conteiner.
+-d = para fazer o conteiner ser executado em segundo plano e continaur até ser parado.
+-e = setar variaveis de ambiente como mysql_root_passsword.
+-p = publica a porta do conteiner no host, para que você tenha acesso ao container pelo host(via fisica), o mysql precisa que você libere uma porta.
+
+docker stats Exemplo = mostra uso de Cpu, Memoria usada e limite, % de memoria usada no momento, Imput ou output da rede, quantia de informação salva em disco, e quantidade de processos.
+docker update Exemplo -m 128M -- cpus 0.2 = por um limite de processamento e de memoria no container, (1 nucleo de processamento, limito ele em 20% do nucleo, 0.2, e 128 Megas de memoria maxima).
+se eu estiver dentro do conteiner uso APT para alterar dentro dele, apt update.
+é como por um limite de requisições.
+apt -y install stress = aplicação usada para estressar a maquina
+stress -- help = comandos do stress
+stress -- cpu 1 --vm-bytes 50m --vm 1 --vm-bytes 50m = estressar 1 cpu (se só tiver uma) com um pacote de 50 megabytes, e mandar mais 1 volume para a memoria, sendo um pacote de 50 megabytes.
+
+docker inspect Exemplo = informações como ip(IPAddress), portas, e coisas como:
+destination = diretorio padrão dentro do conteiner aonde meu banco de dados é salvo.
+
+Docker MYSQL Exemplo:
+docker run -e MYSQL_ROOT_PASSWORD=Senha123 --name mysql-A -d -p 3306:3306 mysql = cria um conteiner em mysql, define senha, nome e portas.
+3306 = porta padrão do sql. a primeira é a do host a segunda do mysql.
+
+docker exec -it mysql-A bash = executa um bash me permitindo entrar no conteiner mysql.
+mysql -u root -p --protocol=tcp = logar no mysql (Se vier mensagem de não conseguiu conectar é por que o serviço ainda não subiu por completo).
+
+Apos entrar posso usar comandos do mysql normalmente, como:
+CREATE DATABASE aula;   = cria a database aula.
+use aula = usar a database aula.
+show databases; = me mostra minhas databases(aula e os bancos padrões do sistema).
+
+ip - a = me mostra meus ips.
+Se meu ip e o do mysql for o mesmo posso acessa-lo remotamente, sem necessidade de bash, instalando mysql-client.
+assim podendo usar diretamente o comando mysql -u root -p --protocol=tcp.
+
+
+Acesso ao banco de dados aula atráves de uma maquina fisica.
+Mysql WorkBench - Software padrão do mysql. (na hora de fazer conexão posso usar o host como o ip da minha maquina virtual, e a porta tambem).
+Sequeler - mysql para linux.
+
+Posso criar tabelas atráves disso, e elas irão ir para o banco de dados da minha maquina virtual, (por conta da porta).
+
+
+
+Armazenamento de dados (mapeamento de um diretorio para dentro do docker, usando mount tipo bind):
+mkdir /data/mysql-A = criar um diretorio dentro da data com o nome do meu container mysql-A.
+
+docker run -e MYSQL_ROOT_PASSWORD=Senha123 --name mysql-A -d -p 3306:3306 --volume=/data/mysql-A:/var/lib/mysql mysql= o --volume ou -v, indica o diretorio onde vai ficar meu banco de dados(no host). e do : em diante é o caminho dentro do container, ou seja especifico o local do host e o do container.
+se eu criar outro docker sql e usar a porta 4030:3306, provavelmente vai pegar dados do sql do outro container, pois possui a mesma porta?.
+
+Desta forma mesmo que eu perca este container, o proximo container que eu subir, basta eu indicar o mesmo caminho para recuperar os dados(--volume=/data/mysql-A:/var/lib/mysql).
+
+para conferir posso usar o comando ls /data/mysql-A , que ira me mostrar todos os dados ainda salvos.
+
+
+
+Tipos de mount (formas de criar volumes de dados no docker):
+
+bind mounts - basicamente apenas vincular um determinado diretório ou arquivo do host dentro do contêiner.
+docker run-v/hostdir:/containerdir mysql - hostdir é meu diretorio no host, que eu vinculo ao container em seguida, assim o banco de dados seria talvez espelhado entre pastas do meu container e meu host?
+
+Exemplo: 
+docker run -dti --mount type=bind,src=/data/mysql-A,dst=/data mysql  (src = source, dst = destination).
+
+criar bind de somente leitura, onde o container não pode alterar os arquivos, apenas le-los.
+docker run -dti --mount type=bind,src=/data/mysql-A,dst=/data,ro mysql  (src = source, dst = destination, ro = read only, pode apenas ler os dados que estão no host).
+(assim se eu vincular ele a uma pasta no meu host que já contenha dados, usando o conteiner só sera possivel le-los).
+
+named volumes -
+docker volume create nome-do-volume (a diferença é que eu especifico o diretorio).
+são criados em /var/lib/docker/volumes e podem ser referenciados apenas por seu nome.
+
+digamos que voce crie um volume chamado "mysql_data", voce pode apenas referencialo como o comando:
+docker run -v mysql_data:/containerdir mysql
+
+montar volume dentro do container:
+docker run -dti name mysql_volume --mount type=volume,mysql_data,dst=/data mysql
+docker volume rm mysql_data = excluir volume.
+docker volume prume = excluir todos os volumes que não estão em uso por pelo menos um conteiner.
+
+dockerfile volumes -
+verei mais a frente
+
+
+qual devo ultilizar? - 
+se você quiser manter tudo na "área do docker"(/var/lib/docker), você pode usar volumes.
+se deseja manter sua propria estrutura de diretório, você pode usar binds.
+
+*o docker recomenda o uso de volumes em vez do uso de binds, pois os volumes são criados e gerenciados pelo docker.
+
+
+
+Processamento, Logs e Rede com Docker:
+
+Limitando memoria e CPU:
+docker stats Exemplo = mostra uso de Cpu, Memoria usada e limite, % de memoria usada no momento, Imput ou output da rede, quantia de informação salva em disco, e quantidade de processos.
+docker update Exemplo -m 128M -- cpus 0.2 = por um limite de processamento e de memoria no container, (1 nucleo de processamento, limito ele em 20% do nucleo, 0.2, e 128 Megas de memoria maxima).
+se eu estiver dentro do conteiner uso APT para alterar dentro dele, apt update.
+é como por um limite de requisições.
+apt -y install stress = aplicação usada para estressar a maquina
+stress -- help = comandos do stress
+stress -- cpu 1 --vm-bytes 50m --vm 1 --vm-bytes 50m = estressar 1 cpu (se só tiver uma) com um pacote de 50 megabytes, e mandar mais 1 volume para a memoria, sendo um pacote de 50 megabytes.
+
+docker info = vai te dar informações sobre o servidor em si, como quantia de conteineres, imagens, quais estão parados ativos e pausados, a versão do server docker e do sistema operacional e entre outros:
+quantidade disponivel de memoria e de cpy, portas liberadas por registries.
+
+docker container logs Exemplo = vai me mostrar todos os logs de execução deste container, (para ver os processos de execução como porta ou senha criada.)
+docker container top Exemplo = me mostra os processos em execução no container referido, tambem mostra o tempo em que estão em execução.
+
+se eu usar ip a no host verei que possuo um dispositivo de rede virtual docker0, que possui um ip proprio (inet).
+docker network --help = guia do comando docker network.
+docker network ls = vai listar redes disponiveis, como host e bridge, e todo container criado é adicionado por padrão a rede bridge que tem acesso (pode se comunicar ao host), por isso que quando indico o ip do meu host consigo ter acesso aos meus containeres.
+docker network inspect bridge (nome da rede) = me mostra quais containers estão nesta rede, (se eu não especifico uma rede para um conteiner ele vai automaticamente para a rede bridge).
+como todos os containers estão na mesma rede eles tem acesso um ao outro por seu endereço ip.
+apt-get upadte
+apt-get install -y iputils-ping = instalar o ping
+ping = posso entrar em um conteiner exemplo-A e chamar o comando ping id_exemplo-B para ver se tenho retorno do container exemplo-B, como estão na mesma rede tera retorno.
+
+se eu quiser separar 2 containeres em outra rede posso fazer assim:
+
+docker network create nome-da-rede = criar uma rede separada e subrede.
+docker run -dti --name Exemplo-A --network nome-da-rede ubuntu = adiciono um conteiner de nome Exemplo-A á minha rede nome-da-rede e que possui a imagem ubuntu.
+docker newtwork inspect nome-da-rede = para saber qual ip desta nova rede, (como por exemplo - subnet : 172.19.0.1, e o ip do conteiner Exemplo-A 172.19.0.2) o de uma rede Exemplo-B seria 172.19.0.3.
+
+desta forma consigo isolar as comunicações dos containers.
+
+docker network rm nome-da-rede = excluir a rede que criei.
+
+
+
+dockerfile - como criar a minha propria imagem, não oficial, configurar meu container com quais aplicações quero usar e afins.
+irei fazer todo o processo do zero, e depois criar a imagem contendo ele todo, (assim como fazer um codigo do zero e depois colocar em uma def/função).
+
+docker run -dti --name ubuntu-python ubuntu
+docker exec -ti ubuntu-python bash
+
+entrar no container
+apt update
+apt install -y python3 nano
+apt clean = limpar arquivos .deb que já haviam sido baixados.
+cd /opt = usar de exempl a pasta opt
+nano app.py = criar um arquivo python chamado app.py, codifico ele usando o nano (como se fosse uma ide).
+
+na interface do nano
+nome = input("Qual é o seu nome?")
+print (nome)
+
+python3 app.py = vai executar o codigo python que criei
+exit
+
+docker exec -ti ubuntu-python3 /opt/app.py = para executar o arquivo python do docker ubuntu python3.
+
+tive que entrar no container, instalar o python e tive que criar o app.
+posso criar uma imagem que a partir de um dockerfile eu possa pedir tudo isto e ele gere esta imagem para mim.
+assim:
+
+mkdir /images 
+cd /images
+mkdir ubuntu-python = criei um diretorio imagem e dentro dele mais um chamado ubuntu-python.
+nano app.py = crio o codigo python.
+nano dockerfile = vamos usar 3 comandos do docker file, from = indico a base do container, o run = o que eu vou executar dentro do container, copy = o que vou copiar, cmd = executar comandos do bash.
+FROM ubuntu = imagem original
+RUN apt update ££ apt install -y python3 ££ apt clean = o ££(e comercial) é para eu poder já executar varios comandos na mesma linha.
+
+COPY app.py /opt/app.py = vai copiar o arquivo python que fiz.
+
+CMD python3 /opt/app.py = e vai executar o arquivo python.
+
+ctrl-a para salvar e ctrl-x
+
+A imagem que criei vai baixar python 3, copiar o arquivo python que fiz e executa-lo.
+
+docker build .(esta na mesma pasta) -t nome-da-imagem = vai criar a imagem com o que eu fiz.
+
+docker images = vai mostrar agora na lista de imagens a que eu criei. (e considerando que o app.py necessita q eu digite meu nome, não funfa em segundo plano com -d).
+
+docker run -ti --name meu-app ubuntu-python == vai criar um conteiner usando a imagem que eu criei, quando executo o container vai pedir meu nome e talz. 
+
+
+Exemplo de imagem mais complexa:
+cd images = entrar na pasta images que foi criada anteriormente, e que tem o ubuntu- python
+mkdir debian-apache
+cd debian-apache = entrar no diretorio que criei com o nome debian-apache
+mkdir site
+cd site
+wget = pegar um arquivo da internet. (neste caso o html.zip do site?).
+add = enviar um arquivo compactado para dentro de um conteiner e descompactar automaticamente, não funciona com arquivo.ZIP apenas TAR
+unzip site1.zip = descompactar arquivo que peguei
+rm site1.zip
+tar -czf site.tar ./ = compactar em tar todos os arquivos da pasta atual (./).
+cp site.tar ../ = copiar site.tar para a pasta anterior.
+cd .. = voltar a pasta anterior (debian-apache).
+rm -Rf site = vai apagar o diretorio que usamos para baixar o zip.
+
+nano Dockerfile 
+FROM debian
+RUN apt-get update ££ apt-get install -y apache2 ££ apt-get clean
+CMD 
+ENV APACHE_LOCK_DIR="var/lock" 
+ENV APACHE_PID_FILE="var/run/apache2.pid"
+ENV APACHE_RUN_USER="www-data"
+ENV APACHE_RUN_GROUP="www-data"
+ENV APACHE_LOG_DIR="/var/log/apache2"
+
+ADD site.tar /var/www/html = diferente do copy por que copia pro lugar que eu especifico e já descompacta, e o dir é o padrão
+
+LABEL description = "apache webserver 1.0" = especificar descrição.
+
+VOLUME /var/www/html = Especificar onde os dados/arquivos serão salvos.
+
+EXPOSE 80 = porta que vou expor, como é webserver, porta 80
+
+ENTRYPOINT ["/usr/sbin/apchectl"] = arquivo de execução do apache, como não é em segundo plano ao inves do cmd uso ENTRYPOINT.
+
+CMD ["-D", "FOREGROUND"] = no cmd apenas especifico que vai ser executado em primeiro plano
+
+ctrl-o
+enter
+ctrl-x 
+
+docker image build -t debian-apache:1.0 . = construir a imagem.
+
+em ordem significam:
+lockdir para evitar que eu tenha mais de uma execução de apache no mesmo container.
+um arquivo pid é um arquivo que contem o numero de identificação do processo.
+o usuario que ira executar o apache, não é aconselhavel o root.
+o grupo.
+e o diretorio de log.
+
+docker images = mostrara minha imagem debian-apache, e dentro dela já tenho meu site criado.
+docker run -dti -p 80:80 --name meu-apache debian-apache:1.0 = criar e executar um conteiner com esta imagem
+
+ip a = pego o ip e jogo no meu navegador para testar, enp0s3: inet.
+posso jogar esta imagem na internet para todos ou deixar privado.
+
+
+
+criar imagens personalizadas a partir de imagens de linguagem de programação oficiais:
+posso ir e pegar uma imagem oficial do python e para saber como usar devor ler a documentação oficial.
+
+docker pull python
+mkdir python
+cd python
+nano app.py = crio um app simples.
+ctrl o, x
+nano Dockerfile = uso as instruções da documentação oficial
+
+FROM python
+
+WORKDIR /usr/src/app  = especifico em que diretorio irei trabalhar, o diretorio padrão da aplicação da imagem.
+
+COPY app.py /usr/src/app
+
+CMD ["python", "/usr/src/app/app.py"] ou como já estou trabalhando com este diretorio(especifiquei no workdir), posso simplificar para ["python", "./app.py"]
+
+
+ctrl o ctrl x
+
+docker image build -t app-python:1.0 . = o .final é para indicar que o dockerfile esta neste mesmo diretorio.
+docker images = tera a imagem que criei, embora como fiz ela atraves da imagem inteira do python, foi muito mais rapida de gerar porem mais pesada.
+docker run -ti --name runapp1 app-python:1.0 = criar container e executar ele, vai executar o app normalmente. 
+
+
+
+Multstage - criarei compilações em varios estagios para diminuir o tamanho dos arquivos e mante-los mais organizados, colocando tudo da minha imagem em binarios e colocando dentro de uma imagem menor.
+
+mkdir go
+cd go
+docker pull golang
+docker pull alpine 
+docker images
+alpine 5.6 mb
+golang 862 mb = se eu gerar uma imagem de apenas 50 mb usando esta imagem do golang, teria que usar 50 mb + 862 mb do golang para gerar a minha imagem.
+
+mas se eu transformar a imagem em binario e transportar ela para o alpine, terei apenas 55.6 mbs gastos para gerar a imagem.
+
+nano app.go = faço um aplicativo em go.
+ctrl o ctrl x
+nano Dockerfile 
+
+FROM golang as exec  = chamo de exec para que eu possa importar no proximo estagio
+
+COPY app.go /go/src/app/
+
+ENV GO111MODULE=auto   = especifica que posso gerar um arquivo executavel a partir de qualquer local dentro do container.
+ 
+WORKDIR /go/src/app/
+
+RUN go build -o app.go .  = run executa uma instrução e manda seu retorno para a primeira camada do dockerfile onde consigo alterar, como preciso transformar o script em binario ultilizarei o run.
+
+FROM alpine
+
+WORKID /appexec
+
+COPY --from=exec /go/src/app/ /appexec = vou copiar o arquivo go que criei e mandar ele pro appexec que é onde estou no alpine.
+
+RUN chmod -R 755 /appexec = para que eu altere permições no diretorio e possa executar apps do diretorio
+
+ENTRYPOINT ./app.go = bash
+
+ctrl-o ctrl-x
+
+docker image build -t app-go:1.0 .
+
+docker images
+vai ter criado uma imagem chamada app-go com apenas 9.77 mb, que é o alpine mais o arquivo compilado.
+
+docker run -ti --name meuappOK app-go:1.0 = vai executar o programa.
+
+como com multstage a imagem ficou muito pequena e ocupando muito menos espaço, agora é muito melhor mandar ela para o meu hub.
+com a conta gratuita feita no docker você só tem direito a privar 1 imagem.
+
+na hora que vou gerar a imagem devo especificar usuario
+
+docker login = para entrar na minha conta do hub do docker.
+docker build . -t gustavofelipe/nome-da-imagem:1.0
+vai criar uma imagem com meu nome de usuario especificado
+
+docker pull = baixa
+docker push = sobe 
+
+docker push gustavofelipe/nome-da-imagem:1.0 = assim eu subo minha imagem para o meu hub para que qualquer um possa baixar.
+
+
+
+Como criar um servidor de imagens - assim qualquer pessoa que tiver acesso ao servidor pode usar as imagens, sem precisar da conta no docker hub e sem limite de imagens privadas.
+
+posso criar outro server uno Grade Vm ou usar o mesmo, ao inves de indicar o ip da outra maquina eu uso o local host pois o servidor seria a minha propria maquina virtual.
+
+*vou para outro server
+
+conteiner especifico para armazenar imagens > Registry
+
+ip a = preciso saber o ip do meu server.
+docker version = ver o docker.
+
+docker run -d -p 5000:5000 --restart=always --name registry registry:2 = -d segundo plano, -p liberar porta padrão 5000, --restart=always se houver problema ou restart o conteiner sobe automaticamente.
+
+
+*vou para o servidor que estava usando, meu hub.
+docker logout = devo deslogar do meu docker hub.
+docker image tag e55eraer localhost = caso esteja na minha propria maquina
+docker image tag e55eraer 10.0.0.189:5000/my-go-app:1.0 = uso o ip do server que criei especificamente para minhas imagens
+assim crio uma imagem já guiada para subir no meu outro servidor.
+
+curl 10.0.0.189:5000/v2/_catalog = checar os repositorios do meu server de imagens.
+docker push 10.0.0.189:5000/my-go-app:1.0 = vai subir minha imagem para o server de imagens que criei.
+pode ocorrer um erro de autenticação onde o docker reclame que o server é http e não https, para resolver devo indicar que o server que criei é seguro, usando nano.
+
+nano /etc/docker/daemon.jason
+{ "insecure-registries":["10.0.0.189:5000"]} = se for local host posso especificar local host
+ctrl o ctrl x
+
+se eu tentar denovo pode dar erro dnv, devo usar:
+systemctl restart docker
+
+docker push 10.0.0.189:5000/my-go-app:1.0
+curl 10.0.0.189:5000/v2/_catalog = vai me mostrar que minha imagem foi salva
+docker rmi -f a55eare = excluir a imagem do meu hub.
+docker pull 10.0.0.189:5000/my-go-app:1.0 = baixo a imagem denovo porem desta vez diretamente de meu servidor de imagens ao inves de meu hub.
+
+

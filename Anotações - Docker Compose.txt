@@ -1,0 +1,87 @@
+Docker Compose - unir 2 ou mais conteiners para execução de uma aplicação especifica. 
+
+Docker compose é uma ferramente desenvolvida para ajduar a definir e compartilhar aplicativos com vários contêineres.
+Com o compose, você pode criar um arquivo YAML para definir os serviços e com um único comando, pode rodar todos os
+contêineres ou para-los.
+
+Arquivo YAML = Preciso especificar os services, ports, volumes e as networks.
+devo usar a versão que mais se adeque ao do docker.
+
+Sintaxe arquivo YAML
+de 2 em 2 espaços
+vestion:'3.7'
+services:
+  mysqlsrv:
+    image: mysql:5.7
+    enviroment:
+      MYSQL_ROOT_PASSWORD: "Senha123"
+      MYSQL_DATABASE: "TesteDB"
+    ports:
+      - "3306:3306"
+    volumes:
+      - /data/mysql-C:/var/lib/mysql                 = tipo bind.
+    networks:
+      - minha-rede
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - minha-rede
+
+
+networks:
+  minha-rede
+    driver:bridge
+
+
+adminer é uma app em php para manutenção e gerenciamento de banco de dados.
+
+vou para meu host, e instalo o Docker Compose com:
+apt-get install -y docker-compose
+docker-compose --help
+
+
+
+primeiro compose:
+definir o local onde estara meu banco de dados, com bind para não perder dados quando fizer o container.
+
+cd /data/
+mkdir mysql-c
+cd .. 
+mkdir /compose
+cd compose/
+mkdir primeiro
+cd primeiro/
+nano docker-compose.yml = criar um arquivo yml (pode ser o ali de cima).
+
+ctrl O ctrl X 
+
+criarei 2 conteiners e subirei ambos ao mesmo tempo
+docker-compose up -d = subir e down descer, em segundo plano para eu não ver todos os logs e ter que usar ctrl c para sair.
+se as portas estiverem em uso posso excluir o que estiver usando se possivel.
+
+se eu quiser posso acessar atráves do ip no navegador meu adminer com ip a
+pelo adminer posso criar tabelas e afins.
+
+
+docker-compose down = vai dar stop em meus containers e tambem exclui a rede.
+docker-compose up = cria denovo a rede e sobe denovo os conteiners. se eu não subir em segundo plano posso ver os logs. e quando subir denovo tudo vai estar salvo por que fiz com bind.
+
+ctrl c = para tudo.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
